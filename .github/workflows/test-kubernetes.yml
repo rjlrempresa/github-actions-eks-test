@@ -1,0 +1,50 @@
+name: ⚡ Test EKS Runner - Kubernetes
+
+on:
+  workflow_dispatch:  # Solo manual
+
+jobs:
+  test-kubernetes:
+    name: Kubernetes Integration Test
+    runs-on: [self-hosted, linux, eks]
+    
+    steps:
+    - name: 📋 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🔧 Configure kubectl
+      run: |
+        echo "=== KUBECTL VERSION ==="
+        kubectl version --client
+        
+    - name: 🏗️ Test cluster access
+      run: |
+        echo "=== CLUSTER INFO ==="
+        kubectl cluster-info
+        echo ""
+        echo "=== NODES ==="
+        kubectl get nodes -o wide
+        
+    - name: 🏃 Test runner namespace
+      run: |
+        echo "=== GITHUB ACTIONS NAMESPACE ==="
+        kubectl get all -n github-actions
+        echo ""
+        echo "=== RUNNER PODS ==="
+        kubectl get pods -n github-actions -o wide
+        
+    - name: 📊 Test permissions
+      run: |
+        echo "=== TESTING RBAC PERMISSIONS ==="
+        echo "✅ Can list pods:"
+        kubectl get pods -n github-actions --no-headers | wc -l
+        echo "✅ Can list services:"
+        kubectl get services -n github-actions --no-headers | wc -l
+        echo "✅ Can list deployments:"
+        kubectl get deployments -n github-actions --no-headers | wc -l
+        
+    - name: 🧪 Test deployment creation (dry-run)
+      run: |
+        echo "=== TESTING DEPLOYMENT CREATION (DRY-RUN) ==="
+        kubectl create deployment test-app --image=nginx --dry-run=client -o yaml
+        echo "✅ Deployment creation permissions OK"

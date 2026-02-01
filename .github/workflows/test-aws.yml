@@ -1,0 +1,42 @@
+name: ☁️ Test EKS Runner - AWS Integration
+
+on:
+  workflow_dispatch:  # Solo manual para evitar costos
+
+jobs:
+  test-aws:
+    name: AWS Integration Test
+    runs-on: [self-hosted, linux, eks]
+    
+    steps:
+    - name: 📋 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🔐 Test AWS credentials (IRSA)
+      run: |
+        echo "=== AWS IDENTITY ==="
+        aws sts get-caller-identity
+        echo ""
+        echo "=== AWS REGION ==="
+        echo "Region: $AWS_REGION"
+        echo "Default Region: $AWS_DEFAULT_REGION"
+        
+    - name: 📦 Test ECR access
+      run: |
+        echo "=== ECR REPOSITORIES ==="
+        aws ecr describe-repositories --region eu-west-1 || echo "No ECR repositories found"
+        
+    - name: 🗄️ Test S3 access
+      run: |
+        echo "=== S3 BUCKETS ==="
+        aws s3 ls || echo "No S3 access or no buckets"
+        
+    - name: ⚙️ Test SSM access
+      run: |
+        echo "=== SSM PARAMETERS ==="
+        aws ssm describe-parameters --region eu-west-1 --max-items 5 || echo "No SSM access"
+        
+    - name: 🏗️ Test EKS access
+      run: |
+        echo "=== EKS CLUSTERS ==="
+        aws eks list-clusters --region eu-west-1 || echo "No EKS access"

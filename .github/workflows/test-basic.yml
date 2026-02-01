@@ -1,0 +1,42 @@
+name: 🧪 Test EKS Runner - Basic
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # Permite ejecutar manualmente
+
+jobs:
+  test-basic:
+    name: Basic EKS Runner Test
+    runs-on: [self-hosted, linux, eks]
+    
+    steps:
+    - name: 📋 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🎯 Test runner environment
+      run: |
+        echo "🎉 ¡Hola desde EKS!"
+        echo "Runner: $(hostname)"
+        echo "User: $(whoami)"
+        echo "Date: $(date)"
+        echo "Working directory: $(pwd)"
+        
+    - name: 🐧 System information
+      run: |
+        echo "=== SYSTEM INFO ==="
+        uname -a
+        cat /etc/os-release
+        df -h
+        free -h
+        
+    - name: 🔧 Available tools
+      run: |
+        echo "=== AVAILABLE TOOLS ==="
+        which docker || echo "Docker: Not available"
+        which kubectl || echo "kubectl: Not available" 
+        which aws || echo "AWS CLI: Not available"
+        which git || echo "Git: Not available"
+        which curl || echo "curl: Not available"
